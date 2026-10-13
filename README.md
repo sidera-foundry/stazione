@@ -7,6 +7,7 @@
   <a href="https://x.com/SideraFoundry"><img alt="X: @SideraFoundry" src="https://img.shields.io/badge/X-%40SideraFoundry-000000?style=for-the-badge&logo=x&logoColor=white"></a>
   <a href="https://www.instagram.com/siderafoundry/"><img alt="Instagram: @siderafoundry" src="https://img.shields.io/badge/Instagram-%40siderafoundry-E4405F?style=for-the-badge&logo=instagram&logoColor=white"></a>
   <a href="https://www.patreon.com/cw/SideraFoundry"><img alt="Patreon: Sidera Foundry" src="https://img.shields.io/badge/Patreon-Sidera%20Foundry-F96854?style=for-the-badge&logo=patreon&logoColor=white"></a>
+  <a href="https://discord.gg/bQuByyC7E"><img alt="Discord: Sidera Foundry" src="https://img.shields.io/badge/Discord-Sidera%20Foundry-5865F2?style=for-the-badge&logo=discord&logoColor=white"></a>
   <a href="LICENSE"><img alt="License: PolyForm Noncommercial 1.0.0" src="https://img.shields.io/badge/license-PolyForm%20Noncommercial-555555?style=for-the-badge"></a>
 </p>
 
