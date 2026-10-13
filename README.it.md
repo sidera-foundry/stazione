@@ -142,3 +142,7 @@ potete leggerlo, usarlo, modificarlo e condividerlo per **scopi non commerciali*
 scuole, enti pubblici e organizzazioni no profit). L'**uso commerciale**, compreso l'uso dentro un'azienda a scopo di
 lucro e l'offerta come servizio a pagamento, richiede una licenza commerciale di Sidera Foundry: contattateci da
 [siderafoundry.com](https://siderafoundry.com).
+
+## Autori
+
+Stazione è fatta da Luca Mazzoni e Leonardo Di Berardino, di [Sidera Foundry](https://siderafoundry.com).
