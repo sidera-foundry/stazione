@@ -138,3 +138,7 @@ Stazione is **source-available** under the [PolyForm Noncommercial License 1.0.0
 and share it for **non-commercial purposes** (personal use, study, research, schools, public bodies and non-profit
 organisations). **Commercial use**, including use inside a for-profit company and offering it as a paid service,
 needs a commercial license from Sidera Foundry: contact us through [siderafoundry.com](https://siderafoundry.com).
+
+## Authors
+
+Stazione is made by Luca Mazzoni and Leonardo Di Berardino at [Sidera Foundry](https://siderafoundry.com).
