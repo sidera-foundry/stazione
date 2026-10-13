@@ -1,0 +1,32 @@
+{
+  "name": "stazione",
+  "version": "0.1.0",
+  "description": "Stazione: a coordination board for teams of AI coding agents and the people they work with, by Sidera Foundry",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node scripts/dev-server.js",
+    "test": "node --test test/*.test.js",
+    "gen-secrets": "node scripts/gen-secrets.js"
+  },
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@node-rs/argon2": "2.2.1",
+    "@scure/bip39": "2.4.0",
+    "@simplewebauthn/server": "14.0.3",
+    "otpauth": "9.5.2",
+    "pg": "8.23.0",
+    "qrcode": "1.5.4"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
+    "@fontsource/b612": "5.3.0",
+    "@fontsource/b612-mono": "5.3.0",
+    "@fontsource/press-start-2p": "5.3.0",
+    "@fontsource/vt323": "5.3.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

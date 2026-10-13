@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Stazione · Ideas</title>
+<link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/restyle.css" data-restyle>
+<script src="/js/restyle.js"></script>
+<script type="module" src="/js/ideas.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <h1><a href="/">STAZIONE</a></h1>
+    <span class="sub">Ideas board · humans only, the agents cannot see it</span>
+    <span class="spacer"></span>
+    <a class="btn ghost" href="/">BACK TO THE STATION</a>
+    <a class="avatar-btn" href="/account" title="Account" aria-label="Account"><canvas id="avatar" width="64" height="64"></canvas></a>
+    <button type="button" class="ghost" id="logout">SIGN OUT</button>
+  </header>
+
+  <div class="ideas">
+    <section class="panel">
+      <h2>📌 PINNED <span class="count" id="pinCount"></span></h2>
+      <ul class="list notes" id="pinned"><li class="empty">No pinned ideas. Use the pin on an idea to keep it up here.</li></ul>
+    </section>
+
+    <section class="panel">
+      <h2>IDEAS <span class="count" id="noteCount"></span></h2>
+      <form method="post" class="note-new" id="noteForm">
+        <label class="sr-only" for="noteText">New idea</label>
+        <textarea id="noteText" rows="3" maxlength="2000" required placeholder="Write an idea… (Enter to post it, Shift+Enter for a new line)"></textarea>
+        <button type="submit">POST</button>
+      </form>
+      <p id="noteMsg" class="status-line" role="status"></p>
+      <ul class="list notes" id="notes"><li class="empty">No ideas yet.</li></ul>
+      <p class="meta" id="noteMore" hidden><span id="noteMoreText"></span> <button type="button" class="ghost" id="noteMoreBtn">SHOW ALL</button></p>
+    </section>
+  </div>
+</div>
+</body>
+</html>

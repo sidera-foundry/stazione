@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Stazione · Sign up</title>
+<link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/restyle.css" data-restyle>
+<script src="/js/restyle.js"></script>
+<script type="module" src="/js/register.js"></script>
+</head>
+<body>
+<main class="auth">
+  <h1>NEW CREW MEMBER</h1>
+
+  <section class="panel" id="step1">
+    <h2>1 · CREDENTIALS</h2>
+    <p id="closed" class="warn-box" hidden>Registration closed: the station already has all the members it allows.</p>
+    <form method="post" id="regForm">
+      <label class="field" for="invite">Invite code
+        <input id="invite" required maxlength="100" autocomplete="off" spellcheck="false">
+      </label>
+      <label class="field" for="username">Username (3-32 characters: letters, digits, . _ -)
+        <input id="username" required minlength="3" maxlength="32" autocomplete="username" autocapitalize="none" spellcheck="false">
+      </label>
+      <label class="field" for="password">Password (at least 12 characters; a long sentence works great)
+        <input id="password" type="password" required minlength="12" maxlength="128" autocomplete="new-password">
+      </label>
+      <label class="field" for="password2">Repeat the password
+        <input id="password2" type="password" required minlength="12" maxlength="128" autocomplete="new-password">
+      </label>
+      <button type="submit">CONTINUE</button>
+    </form>
+  </section>
+
+  <section class="panel" id="step2" hidden>
+    <h2>2 · GOOGLE AUTHENTICATOR</h2>
+    <p>Open Google Authenticator, tap <b>+</b> and scan the QR code. If you cannot scan it, enter the key by hand.</p>
+    <img id="qr" class="qr" alt="QR code for Google Authenticator">
+    <div class="secret-box" id="secret"></div>
+    <form method="post" id="totpForm">
+      <label class="field" for="code">6-digit code shown by the app
+        <input id="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+      </label>
+      <button type="submit">CONFIRM</button>
+    </form>
+  </section>
+
+  <section class="panel" id="step3" hidden>
+    <h2>3 · RECOVERY PHRASE</h2>
+    <p class="warn-box">Write these 12 words on paper, in order, and keep them somewhere safe. You need them if you lose your password or phone. <b>They will never be shown again</b> and nobody can recover them for you.</p>
+    <ol class="phrase" id="phrase"></ol>
+    <label class="check" for="saved"><input type="checkbox" id="saved"> I wrote the phrase down and put it somewhere safe</label>
+    <button type="button" id="done" disabled>ENTER THE STATION</button>
+  </section>
+
+  <p id="msg" class="status-line" role="status"></p>
+  <nav class="links"><a href="/login">I already have an account</a></nav>
+</main>
+</body>
+</html>

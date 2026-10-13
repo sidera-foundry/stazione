@@ -1,0 +1,15 @@
+node_modules/
+.env*
+!.env.example
+.dev-db/
+.vercel/
+*.log
+public/stazione.mjs
+public/CLAUDE.template.md
+public/AGENTS.template.md
+
+# local instructions for our own agents (each machine has its own, never in the repo)
+/CLAUDE.md
+/AGENTS.md
+.claude/
+.codex/

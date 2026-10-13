@@ -1,0 +1,33 @@
+# Stazione with its own Postgres. Settings come from .env next to this file (see docs/INSTALL.md):
+#   POSTGRES_PASSWORD, PASSWORD_PEPPER, DATA_ENCRYPTION_KEY, INVITE_CODE and the optional ones.
+# Put a reverse proxy with HTTPS in front of port 3000 (the login cookies need HTTPS outside localhost).
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: stazione
+      POSTGRES_DB: stazione
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stazione -d stazione"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://stazione:${POSTGRES_PASSWORD}@db:5432/stazione
+    ports:
+      - "127.0.0.1:3000:3000"
+
+volumes:
+  db-data:

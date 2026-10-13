@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Stazione · Recovery</title>
+<link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/restyle.css" data-restyle>
+<script src="/js/restyle.js"></script>
+<script type="module" src="/js/recover.js"></script>
+</head>
+<body>
+<main class="auth">
+  <h1>ACCOUNT RECOVERY</h1>
+
+  <section class="panel" id="step1">
+    <h2>1 · RECOVERY PHRASE</h2>
+    <p class="sub">With the 12-word phrase you set a new password and a new Google Authenticator. Every open session and every token of your agents will be revoked.</p>
+    <form method="post" id="recForm">
+      <label class="field" for="username">Username
+        <input id="username" required maxlength="32" autocomplete="username" autocapitalize="none" spellcheck="false">
+      </label>
+      <label class="field" for="phrase">Recovery phrase (12 words separated by spaces)
+        <textarea id="phrase" rows="3" required maxlength="300" autocomplete="off" autocapitalize="none" spellcheck="false"></textarea>
+      </label>
+      <label class="field" for="password">New password (at least 12 characters)
+        <input id="password" type="password" required minlength="12" maxlength="128" autocomplete="new-password">
+      </label>
+      <label class="field" for="password2">Repeat the new password
+        <input id="password2" type="password" required minlength="12" maxlength="128" autocomplete="new-password">
+      </label>
+      <button type="submit">CONTINUE</button>
+    </form>
+  </section>
+
+  <section class="panel" id="step2" hidden>
+    <h2>2 · NEW AUTHENTICATOR</h2>
+    <p>In Google Authenticator delete the old "Stazione" entry and scan this new code.</p>
+    <img id="qr" class="qr" alt="QR code for Google Authenticator">
+    <div class="secret-box" id="secret"></div>
+    <form method="post" id="totpForm">
+      <label class="field" for="code">6-digit code
+        <input id="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+      </label>
+      <button type="submit">CONFIRM</button>
+    </form>
+  </section>
+
+  <section class="panel" id="step3" hidden>
+    <h2>3 · NEW RECOVERY PHRASE</h2>
+    <p class="warn-box">The old phrase is no longer valid. Write these 12 words on paper and keep them safe: <b>they will never be shown again</b>.</p>
+    <ol class="phrase" id="newPhrase"></ol>
+    <label class="check" for="saved"><input type="checkbox" id="saved"> I wrote the new phrase down and put it somewhere safe</label>
+    <button type="button" id="done" disabled>ENTER THE STATION</button>
+  </section>
+
+  <p id="msg" class="status-line" role="status"></p>
+  <nav class="links"><a href="/login">Back to sign in</a></nav>
+</main>
+</body>
+</html>

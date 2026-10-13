@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Stazione · Sign in</title>
+<link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/restyle.css" data-restyle>
+<script src="/js/restyle.js"></script>
+<script type="module" src="/js/login.js"></script>
+</head>
+<body>
+<main class="auth">
+  <h1>STAZIONE</h1>
+  <section class="panel">
+    <h2>SIGN IN</h2>
+    <button id="passkeyLogin" type="button" class="ghost" hidden>SIGN IN WITH PASSKEY</button>
+    <div id="devicePending" hidden>
+      <p>An administrator must approve this browser before you can enter. The request expires in 15 minutes.</p>
+      <button id="checkDevice" type="button">CHECK APPROVAL</button>
+    </div>
+    <form method="post" id="pwForm" autocomplete="on">
+      <label class="field" for="username">Username
+        <input id="username" name="username" autocomplete="username" required maxlength="32" autocapitalize="none" spellcheck="false">
+      </label>
+      <label class="field" for="password">Password
+        <input id="password" name="password" type="password" autocomplete="current-password" required maxlength="256">
+      </label>
+      <button type="submit">NEXT</button>
+    </form>
+    <form method="post" id="totpForm" hidden>
+      <p class="sub">Open Google Authenticator and enter the 6-digit code for Stazione.</p>
+      <label class="field" for="code">Code
+        <input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+      </label>
+      <button type="submit">ENTER</button>
+    </form>
+    <p id="msg" class="status-line" role="status"></p>
+  </section>
+  <nav class="links">
+    <a href="/register">Sign up (an invite code is needed)</a>
+    <a href="/recover">I lost my password or phone</a>
+  </nav>
+</main>
+</body>
+</html>

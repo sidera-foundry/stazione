@@ -1,0 +1,66 @@
+# Tests on every push and pull request. Deploying is left to whoever installs their own station (see README).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install the dependencies (lockfile versions)
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+  # The self-hosted way: the Docker image, started on a real Postgres, must answer and apply its schema.
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      db:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: stazione
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: stazione
+        options: >-
+          --health-cmd "pg_isready -U stazione -d stazione" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build the image
+        run: docker build -t stazione:ci .
+
+      - name: Start it on Postgres and check it answers
+        run: |
+          set -euo pipefail
+          docker run -d --name stazione --network "${{ job.services.db.network }}" -p 3000:3000 \
+            -e DATABASE_URL=postgres://stazione:ci-only-password@db:5432/stazione \
+            -e PASSWORD_PEPPER="$(openssl rand -base64 32)" -e DATA_ENCRYPTION_KEY="$(openssl rand -base64 32)" \
+            -e INVITE_CODE="$(openssl rand -hex 16)" -e HIBP_DISABLED=1 stazione:ci
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:3000/api/auth/status && break; sleep 2; done
+          curl -fsS http://127.0.0.1:3000/login | grep -q 'Stazione'
+          curl -fsS http://127.0.0.1:3000/api/auth/status | grep -q '"registrationOpen":true'
+
+      - name: Logs
+        if: always()
+        run: docker logs stazione || true
