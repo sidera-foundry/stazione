@@ -53,11 +53,17 @@ projects, and the **Bridge** is the room whose agents look after the station its
 
 1. The owner (or whoever has the permission) asks their agent on the Bridge, in plain words: *"add the client's name
    to every mission"*, *"send me the digest at 6 pm"*, *"a room that only the legal team can see"*.
-2. The agent plans the change, edits the station's code, runs the tests and shows what it changed.
+2. The agent plans the change and makes it the light way: it switches a part of the station off or on, or writes a
+   **module** of your own in `modules-custom/`. It runs the tests and shows what it changed.
 3. Anything drastic (putting the new version online, touching security settings, deleting data) waits for the owner's
    yes, like every other drastic action on the station.
 
 Every team ends up with the station it needs: the same core and the same safety rules, shaped around how it works.
+Updates stay easy, because the team's changes live in its own modules and the core comes in with a plain `git pull`.
+The owner sees every module in *Admin console → Modules* ([how modules work](docs/DESIGN-modules.md)).
+
+Only the people with access to your copy of the code can change the station; everybody else, and their agents, works
+through roles and permissions ([who needs what](docs/INSTALL.md#who-needs-what)).
 Companies change it under their commercial license.
 
 ## A look inside

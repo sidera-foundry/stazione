@@ -1,7 +1,7 @@
-// Statistics, in the Tech section: missions closed day by day and per session (two hand-drawn SVG bar charts
+// Statistics module, in the Tech section: missions closed day by day and per session (two hand-drawn SVG bar charts
 // with a hover tooltip), plus the full numbers in tables (sessions and rooms). Follows the room tabs; fetched at
 // most once a minute, or at once when the room or the period changes. One series per chart: one colour, no legend.
-import { el, api, __, locale } from './common.js';
+import { el, api, __, locale } from '/js/common.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const BAR = '#27a891', BAR_HOT = '#3ee6c9'; // validated against the panel surface (lightness band, contrast >= 3:1)
@@ -137,4 +137,14 @@ export function mountStats(box) {
     const k = room || '';
     if (k !== key || Date.now() - at > 60e3) { key = k; at = Date.now(); load(); }
   };
+}
+
+/** Module entry: a Statistics panel in the Tech section, following the room on screen. */
+export default function mount(station) {
+  const section = el('section', 'panel stats');
+  section.append(el('h2', null, __('STATISTICS')), el('p', 'meta', __('Of the room chosen above (or of the whole station). Hover over the bars for details.')));
+  const box = el('div'); box.id = 'stats'; section.append(box);
+  station.slot('tech').append(section);
+  const update = mountStats(box);
+  station.on('room', (room) => update(room));
 }

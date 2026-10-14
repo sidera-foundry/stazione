@@ -10,6 +10,8 @@ RUN npm ci --omit=dev && npm cache clean --force
 
 COPY server.js vercel.json ./
 COPY lib ./lib
+COPY modules ./modules
+COPY modules-custom ./modules-custom
 COPY public ./public
 COPY client ./client
 COPY docs ./docs

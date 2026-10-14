@@ -1,0 +1,27 @@
+{
+  "id": "protected-paths",
+  "name": "Protected paths",
+  "description": "Refuses missions and locks on files that agents must never change, such as .env files or the deploy configuration. An example of a module rule: it can only refuse, never allow.",
+  "version": "1",
+  "defaultEnabled": false,
+  "server": "server.js",
+  "settings": [
+    {
+      "key": "patterns",
+      "label": "Protected paths, one per line (* matches part of a name, ** any part of a path: e.g. .env* or infra/**)",
+      "type": "list",
+      "default": [
+        ".env",
+        ".env.*",
+        "*.pem",
+        "*.key"
+      ]
+    },
+    {
+      "key": "message",
+      "label": "Explanation shown to the agent",
+      "type": "text",
+      "default": "This path is protected: ask a human to change it."
+    }
+  ]
+}

@@ -5,7 +5,7 @@
 // 1. the sky follows the viewer's clock (day 7-19 is the light variant → data-sky on <html>), or a fixed choice;
 // 2. a clock in the header;
 // 3. the pixel scene repainted with the new palette: canvas colours are remapped when they are set, so board.js,
-//    rooms.js and lounge.js need no edit.
+//    rooms.js and the game room module need no edit.
 // Both choices live in this browser only (localStorage).
 (() => {
   const store = {

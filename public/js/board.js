@@ -1,14 +1,19 @@
 import { $, el, api, say, __, locale, can, contentWarning } from './common.js';
 import { initNotifications } from './notifications.js';
 import { mountJournal } from './journal.js';
-import { mountStats } from './stats.js';
 import { initPolls } from './polls.js';
 import { initProject } from './project.js';
 import { initSounds, play } from './sounds.js';
 import { suit, hat, tool, roleOf } from './roles.js';
 import { animateAvatar } from './avatar.js';
 import { drawFireworks, dayTint, nightLevel, drawLights, PARTY_MS, drawBin, roomColor, drawMap, drawFurniture, paintBridge, drawBridgeScreen, drawBridgeTable, drawBallotBox } from './rooms.js';
-import { LOUNGE, SEATS, STAND, DOOR, FRIDGE_SPOT, SOFA_Y, BEAN_Y, FOOS_Y, paintLounge, drawLounge, drawSofa, drawBean, drawSeated, drawFoosball } from './lounge.js';
+import { enabledModules, mountModules, emit, assetUrl } from './modules.js';
+
+// The game room is a module (modules/lounge): drawn only when it is on. Off, idle agents stay at their desks and the
+// strip under the main room is a plain lower deck. The scene keeps the same size either way.
+const loungeModule = (await enabledModules()).find((m) => m.id === 'lounge' && m.scene);
+const lounge = loungeModule ? await import(assetUrl('lounge', loungeModule.scene)).catch((err) => { console.error(`module lounge: ${err?.message || err}`); return null; }) : null;
+const LOUNGE = lounge?.LOUNGE ?? { y0: 180, h: 76 };
 
 const PALETTE = ['#ffb547', '#3ee6c9', '#ff5fa2', '#8fa8ff', '#b6f24a', '#ff7a45', '#c792ff', '#5fd0ff'];
 const AWAY_MS = 10 * 60e3, HUB_RECENT_MS = 120e3, BUBBLE_MS = 5 * 60e3, POLL_MS = 4000;
@@ -16,7 +21,6 @@ const state = { me: null, users: [], claudes: [], tasks: [], locks: [], messages
 const adminLink = el('a', 'btn ghost', __('ADMIN CONSOLE')); adminLink.href = '/admin'; adminLink.hidden = true;
 document.querySelector('.bar').append(adminLink);
 $('newTask').hidden = true;
-document.querySelector('a[href="/ideas"]').hidden = true;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // ---------- helpers ----------
@@ -435,14 +439,13 @@ function renderAssignees() {
   sel.value = crew.some((c) => c.id === cur) ? cur : '';
 }
 
-function renderAll() { renderAssignees(); renderFilter(); renderCrew(); renderMsgs(); renderTasks(); renderLocks(); renderDecisions(); renderContext(); renderPolls(); renderProject(); renderNotifications(); updateJournal(roomByProject(state.filter)?.id ?? (state.filter || 'bridge'), nameOf); updateStats(roomByProject(state.filter)?.id ?? state.filter); }
+function renderAll() { renderAssignees(); renderFilter(); renderCrew(); renderMsgs(); renderTasks(); renderLocks(); renderDecisions(); renderContext(); renderPolls(); renderProject(); renderNotifications(); updateJournal(roomByProject(state.filter)?.id ?? (state.filter || 'bridge'), nameOf); emit('room', roomByProject(state.filter)?.id ?? state.filter); emit('state', state); }
 
 // ---------- data ----------
 const conn = $('conn');
 const setConn = (txt, cls) => { conn.textContent = txt; conn.className = `chip ${cls}`; };
 let timer = null;
 const updateJournal = mountJournal($('journal'));
-const updateStats = mountStats($('stats'));
 const renderPolls = initPolls({ state, nameOf, roomName, roomTint, inFilter, roomByProject, ago, left, poll: () => poll() });
 const renderProject = initProject({ state, nameOf, roomName, roomTint, goRoom: (p) => goRoom(p), poll: () => poll() });
 const renderNotifications = initNotifications({ state, nameOf, roomName, roomTint, inFilter, goRoom: (p) => goRoom(p), ago, left, poll: () => poll() });
@@ -472,7 +475,6 @@ async function poll() {
       $(id).closest('label').hidden = !can(state.me, 'missions.assign');
       $(id).disabled = !can(state.me, 'missions.assign');
     }
-    document.querySelector('a[href="/ideas"]').hidden = !can(s.me, 'ideas.use') && !s.rooms.some((r) => r.permissions?.includes('ideas.use'));
     $('who').textContent = s.me.username; $('who').hidden = false;
     setConn(__('Connected'), 'ok');
     renderAll();
@@ -510,11 +512,11 @@ const T = (txt, x, y, c, size = 16, align = 'center') => { g.font = `${size}px V
 const SLOT_X = [30, 82, 134, 186, 238, 290];
 const TOP_FY = 54, BOT_FY = 168, HUB = { x: 160, y: 104, rx: 48, ry: 18 };
 const WIN = { x: 104, y: 5, w: 112, h: 24 };
-const FRIDGE = FRIDGE_SPOT; // the mini fridge stands in the lounge
+const FRIDGE = lounge?.FRIDGE_SPOT; // the mini fridge stands in the game room (none without it)
 const FRIDGE_EVERY = 75e3, FRIDGE_STAY = 11e3; // an idle agent walks to the fridge for a drink once in a while
 const SIP_EVERY = 11e3, SIP_FOR = 1400;
 const CAN = '#ece6d2'; // coffee mug
-const SH = { R, T, shade }; // drawing helpers handed to lounge.js
+const SH = { R, T, shade }; // drawing helpers handed to the game room module (and rooms.js)
 const clip = (s, n) => { s = String(s || ''); return s.length > n ? `${s.slice(0, n - 1)}…` : s; };
 
 // Stars seen through the window (they twinkle), kept inside the glass and away from the planet.
@@ -571,7 +573,14 @@ const bg = document.createElement('canvas'); bg.width = W * S; bg.height = SH_ *
     if (e <= 1) { let c = e2 <= 1 ? ((Math.abs(x) + Math.abs(y * 2)) % 10 < 5 ? '#1f2963' : '#1b2459') : '#2e3a80'; if (e2 > 0.86 && e2 <= 1) c = '#3ee6c9'; if (e2 > 0.95 && e2 <= 1 && ((x + 60) % 8 < 4)) c = '#1c7a70'; P(HUB.x + x, HUB.y + y, 1, 1, c); }
   }
   for (let y = 0; y < 4; y++) for (let x = -HUB.rx - 6; x <= HUB.rx + 6; x++) { const yy = Math.round((HUB.ry + 3) * Math.sqrt(Math.max(0, 1 - (x * x) / ((HUB.rx + 6) ** 2)))); P(HUB.x + x, HUB.y + yy + y, 1, 1, y < 2 ? '#26306e' : '#161d4c'); }
-  paintLounge(P);
+  if (lounge) lounge.paintLounge(P);
+  else { // no game room: the lower deck is plain floor under a closed wall
+    for (let y = LOUNGE.y0; y < LOUNGE.y0 + LOUNGE.h; y += 14) for (let x = 0; x < W; x += 20) {
+      const alt = ((x / 20) + Math.floor(y / 14)) % 2;
+      P(x, y, 20, 14, alt ? '#10173f' : '#0e1438'); P(x, y, 20, 1, '#18214f'); P(x, y + 13, 20, 1, '#0a0f2e');
+    }
+    P(0, LOUNGE.y0, W, 6, '#1b2254'); P(0, LOUNGE.y0, W, 1, '#39447f'); P(0, LOUNGE.y0 + 6, W, 1, '#0a0f2e');
+  }
 })();
 const BRIDGE_TABLE = { x: HUB.x, y: HUB.y, rx: 26, ry: 8 }; // the hub's place: whoever is in comms stands around it
 const bgBridge = document.createElement('canvas'); bgBridge.width = bg.width; bgBridge.height = bg.height;
@@ -590,7 +599,7 @@ function mapModel() {
   for (const c of state.claudes) if (!c.room && c.project && !rooms.some((r) => r.project === c.project)) rooms.push({ id: `p:${c.project}`, name: c.project, kind: 'project', project: c.project });
   return rooms.map((room) => ({
     room,
-    crew: state.claudes.filter((c) => (c.room === room.id || (!c.room && c.project === room.project)) && crewStatus(c) !== 'idle').map((c) => ({ id: c.id, color: colorOf(c), status: crewStatus(c), role: roleOf(c) })),
+    crew: state.claudes.filter((c) => (c.room === room.id || (!c.room && c.project === room.project)) && (!lounge || crewStatus(c) !== 'idle')).map((c) => ({ id: c.id, color: colorOf(c), status: crewStatus(c), role: roleOf(c) })),
     tasks: state.tasks.filter((t) => t.project === room.project && t.status !== 'done').length,
     milestones: room.milestones?.length ? [room.milestones.filter((m) => m.done).length, room.milestones.length] : null,
     vote: voteFor(room),
@@ -770,7 +779,7 @@ function bubble(x, y, text, color, bx, by, w, h) {
 
 /** True while an idle (not offline) agent is on its periodic trip to the fridge. */
 function fridgeTrip(c) {
-  if (reduced || c.status !== 'idle' || isAway(c) || atHub(c)) return false;
+  if (!lounge || reduced || c.status !== 'idle' || isAway(c) || atHub(c)) return false;
   return (Date.now() + hash(c.id) * 997) % FRIDGE_EVERY < FRIDGE_STAY;
 }
 
@@ -780,11 +789,11 @@ function layout() {
   const byJoin = (a, b) => (a.joinedAt || 0) - (b.joinedAt || 0) || a.id.localeCompare(b.id);
   const members = state.claudes.filter(inRoom).sort(byJoin);
   // The game room is common: whoever is idle in another room is down there too (never at a desk or the hub here).
-  const guests = state.claudes.filter((c) => !inRoom(c) && !isAway(c) && !atHub(c) && c.status !== 'working').sort(byJoin);
+  const guests = lounge ? state.claudes.filter((c) => !inRoom(c) && !isAway(c) && !atHub(c) && c.status !== 'working').sort(byJoin) : [];
   const crew = [...members, ...guests];
   const hubbers = crew.filter(atHub).sort((a, b) => a.id.localeCompare(b.id));
   const thirsty = crew.filter(fridgeTrip); // queue in front of the fridge
-  const idle = crew.filter((c) => !isAway(c) && !atHub(c) && c.status !== 'working' && !fridgeTrip(c)); // off to the lounge
+  const idle = lounge ? crew.filter((c) => !isAway(c) && !atHub(c) && c.status !== 'working' && !fridgeTrip(c)) : []; // off to the game room
   // Stable lounge spots: whoever already has one keeps it, newcomers take the first free one.
   const spot = new Map(), taken = new Set();
   for (const c of [...idle, ...thirsty]) { const k = actors.get(c.id)?.spot; if (k != null && !taken.has(k)) { spot.set(c.id, k); taken.add(k); } } // a fridge run keeps the seat
@@ -796,7 +805,7 @@ function layout() {
     let target; let seat = false;
     if (atHub(c)) { const k = hubbers.indexOf(c), n = hubbers.length, a = (Math.PI * 2 * k / n) + (n > 1 ? 0 : 0.6); target = { x: HUB.x + Math.cos(a) * (HUB.rx - 12), y: HUB.y + Math.sin(a) * (HUB.ry - 5) }; }
     else if (fridgeTrip(c)) return { c, desk, target: { x: FRIDGE.x - 14 - thirsty.indexOf(c) * 14, y: FRIDGE.y + 2 }, seat, fridge: true };
-    else if (spot.has(c.id) && !thirsty.includes(c)) { const k = spot.get(c.id); return { c, desk, target: k < SEATS.length ? SEATS[k] : STAND[(k - SEATS.length) % STAND.length], seat, lounge: k }; }
+    else if (spot.has(c.id) && !thirsty.includes(c)) { const k = spot.get(c.id); return { c, desk, target: k < lounge.SEATS.length ? lounge.SEATS[k] : lounge.STAND[(k - lounge.SEATS.length) % lounge.STAND.length], seat, lounge: k }; }
     else if (desk) { target = { x: desk.x - 4, y: desk.fy }; seat = true; }
     else target = { x: 20 + ((i - 12) % 12) * 26, y: 136 };
     return { c, desk, target, seat };
@@ -814,8 +823,8 @@ function frame(now) {
       drawBot(x, y, c.color, { role: c.role, t: t + k * 311, sleep, face: k % 2 ? -1 : 1, typing: st === 'working' && !reduced, bob: !reduced && !sleep ? Math.floor((t + k * 400) / (st === 'working' ? 260 : 900)) % 2 : 0 });
       if (sleep) T('z', x + 7, y - 18, '#8a94c6', 12, 'left');
     };
-    const lounge = state.claudes.filter((c) => crewStatus(c) === 'idle').map((c) => ({ id: c.id, color: colorOf(c), status: 'idle', role: roleOf(c) }));
-    mapBoxes = drawMap(SH, t, mapModel(), SH_, hoverProject, astro, lounge);
+    const resting = lounge ? state.claudes.filter((c) => crewStatus(c) === 'idle').map((c) => ({ id: c.id, color: colorOf(c), status: 'idle', role: roleOf(c) })) : null;
+    mapBoxes = drawMap(SH, t, mapModel(), SH_, hoverProject, astro, resting);
     drawFireworks(SH, t, partyFrom, { x: 0, y: 0, w: W, h: 116 });
     const tint = dayTint(); if (tint) R(0, 0, W, SH_, tint);
     // at night every pod has its lights on: a warm glow inside, through the portholes
@@ -836,8 +845,8 @@ function frame(now) {
     const { c } = it; let a = actors.get(c.id); if (!a) { a = { x: it.target.x, y: it.target.y, face: 1 }; actors.set(c.id, a); }
     // Through the doorway in two legs: line up in front of it on your side, then step through to the other side.
     const line = LOUNGE.y0 + 14; // bottom of the dividing wall
-    const lane = DOOR.x + ((hash(c.id) % 5) - 2) * 4; // everyone has a lane, so nobody blocks the doorway
-    const up = a.y < line, crossing = up !== (it.target.y < line), aligned = Math.abs(a.x - lane) <= 1;
+    const lane = (lounge?.DOOR.x ?? 0) + ((hash(c.id) % 5) - 2) * 4; // everyone has a lane, so nobody blocks the doorway
+    const up = a.y < line, crossing = Boolean(lounge) && up !== (it.target.y < line), aligned = Math.abs(a.x - lane) <= 1;
     const near = up ? LOUNGE.y0 - 6 : LOUNGE.y0 + 18, far = up ? LOUNGE.y0 + 18 : LOUNGE.y0 - 6;
     const target = crossing ? { x: lane, y: aligned ? far : near } : it.target;
     const dx = target.x - a.x, dy = target.y - a.y, d = Math.hypot(dx, dy), sp = 60 * dt;
@@ -847,7 +856,7 @@ function frame(now) {
     const seatedNow = it.seat && !moving && Math.abs(a.y - it.desk.fy) < 1;
     const sipping = working && seatedNow && !reduced && (t + hash(c.id) * 131) % SIP_EVERY < SIP_FOR;
     const atFridge = it.fridge && !moving && !crossing;
-    const onSofa = it.lounge != null && it.lounge < SEATS.length && !moving && !crossing;
+    const onSofa = it.lounge != null && it.lounge < lounge.SEATS.length && !moving && !crossing;
     if (atFridge) fridgeOpen = true;
     if (atFridge) a.can = true; else if (seatedNow || hub || onSofa) a.can = false;
     const holdingCan = a.can && !atFridge; // walking back to the desk with a fresh coffee
@@ -857,9 +866,9 @@ function frame(now) {
     if (seated) a.face = 1;
     if (hub && !moving) a.face = a.x < HUB.x ? 1 : -1; // look at the hologram
     if (atFridge) a.face = 1; // look into the fridge
-    if (onSofa) { loungers.push({ k: it.lounge, color, id: c.id }); drawables.push({ y: a.y, draw: () => drawSeated(SH, a.x, a.y, color, t + hash(c.id) % 900, reduced, it.lounge < 2, roleOf(c)) }); continue; }
+    if (onSofa) { loungers.push({ k: it.lounge, color, id: c.id }); drawables.push({ y: a.y, draw: () => lounge.drawSeated(SH, a.x, a.y, color, t + hash(c.id) % 900, reduced, it.lounge < 2, roleOf(c)) }); continue; }
     const standing = it.lounge != null && !moving && !crossing; // lounge full: foosball for two, the rest watch
-    const spotInfo = standing ? STAND[(it.lounge - SEATS.length) % STAND.length] : null, foos = !!spotInfo?.foos;
+    const spotInfo = standing ? lounge.STAND[(it.lounge - lounge.SEATS.length) % lounge.STAND.length] : null, foos = !!spotInfo?.foos;
     if (spotInfo?.face) a.face = spotInfo.face;
     if (foos) foosers++;
     drawables.push({ y: a.y, draw: () => {
@@ -879,13 +888,15 @@ function frame(now) {
     drawables.push({ y: fy - 0.5, draw: () => drawChair(x, fy) });
     drawables.push({ y: fy + 0.5, draw: () => { const o = deskOcc.get(`${x}:${fy}`); drawDesk(x, fy, o ? o.color : '#3a3f66', o, t); drawBin(R, x + 21, fy + 4, o ? 1 + (hash(o.c.id) % 4) : 0); if (o) T(clip(label(o.c), 12), x - 1, fy + 3.5, o.color, 13); } });
   }
-  drawables.push({ y: FRIDGE.y, draw: () => drawFridge(fridgeOpen, t) });
-  drawables.push({ y: LOUNGE.y0 + 34, draw: () => drawBin(R, 132, LOUNGE.y0 + 34, 5) });
   const players = loungers.filter((p) => p.k < 2).sort((p, q) => p.k - q.k); // the two on the left hold the controllers
-  drawables.push({ y: LOUNGE.y0 + 1, draw: () => drawLounge(SH, t, players, reduced) });
-  drawables.push({ y: SOFA_Y, draw: () => drawSofa(SH) });
-  drawables.push({ y: BEAN_Y, draw: () => drawBean(SH) }); // over the legs of whoever sits on it
-  drawables.push({ y: FOOS_Y, draw: () => drawFoosball(SH, t, reduced, foosers > 0) });
+  if (lounge) {
+    drawables.push({ y: FRIDGE.y, draw: () => drawFridge(fridgeOpen, t) });
+    drawables.push({ y: LOUNGE.y0 + 34, draw: () => drawBin(R, 132, LOUNGE.y0 + 34, 5) });
+    drawables.push({ y: LOUNGE.y0 + 1, draw: () => lounge.drawLounge(SH, t, players, reduced) });
+    drawables.push({ y: lounge.SOFA_Y, draw: () => lounge.drawSofa(SH) });
+    drawables.push({ y: lounge.BEAN_Y, draw: () => lounge.drawBean(SH) }); // over the legs of whoever sits on it
+    drawables.push({ y: lounge.FOOS_Y, draw: () => lounge.drawFoosball(SH, t, reduced, foosers > 0) });
+  }
   for (const [px, py] of [[10, 96], [310, 96], [10, 150], [310, 150]]) drawables.push({ y: py, draw: () => drawPlant(px, py, t + px) });
   drawables.push({ y: HUB.y - 2, draw: () => {
     if (bridge) drawBridgeTable(SH, t, BRIDGE_TABLE, reduced); else drawHolo(t);
@@ -896,7 +907,7 @@ function frame(now) {
   drawables.sort((p, q) => p.y - q.y).forEach((d) => d.draw());
   // wall lights (applique): under the deck signs in every room, and on the game room wall; lit only at night
   const night = nightLevel();
-  const SCONCES = [[47, 24], [273, 24], [112, LOUNGE.y0 + 4], [302, LOUNGE.y0 + 4]];
+  const SCONCES = [[47, 24], [273, 24], ...(lounge ? [[112, LOUNGE.y0 + 4], [302, LOUNGE.y0 + 4]] : [])];
   for (const [sx, sy] of SCONCES) { R(sx - 1, sy - 2, 3, 2, '#2b3574'); R(sx - 3, sy, 7, 3, night > 0.3 ? '#ffe6a8' : '#6a5a40'); R(sx - 2, sy + 3, 5, 1, night > 0.3 ? '#ffc870' : '#4a3e2c'); }
   const tint = dayTint(); if (tint) R(0, 0, W, SH_, tint); // real time of day
   if (night > 0) { // artificial lights, soft: only what is really on gives light
@@ -909,15 +920,15 @@ function frame(now) {
     }
     if (bridge) lights.push({ x: 160, y: 98, r: 40, color: 'rgba(255, 220, 160, A)', a: 0.18 }, { x: 160, y: 18, r: 36, color: 'rgba(120, 200, 255, A)', a: 0.14 });
     else lights.push({ x: HUB.x, y: HUB.y - 10, r: 44, color: 'rgba(62, 230, 201, A)', a: 0.1, flicker: true });
-    lights.push(
+    if (lounge) lights.push(
       { x: 262, y: L + 22, r: 38, color: 'rgba(255, 210, 130, A)', a: 0.3 },                          // floor lamp
       { x: 92, y: L + 16, r: 16, color: 'rgba(255, 95, 180, A)', a: 0.18 },                           // arcade (always on)
       { x: 53, y: L + 7, r: 18, color: 'rgba(255, 95, 162, A)', a: 0.16 },                            // neon sign
     );
     if (players.length) lights.push({ x: 219, y: L + 16, r: 28, color: 'rgba(110, 160, 255, A)', a: 0.2, flicker: true }); // TV, only during a game
     drawLights(lights, night, t);
-    R(259, L + 12, 7, 5, '#fff6c8'); R(260, L + 17, 5, 1, '#ffd27a');                                // the lamp itself, switched on
-  } else R(259, LOUNGE.y0 + 12, 7, 5, '#8a7a5a');                                                     // by day the lamp is off
+    if (lounge) { R(259, L + 12, 7, 5, '#fff6c8'); R(260, L + 17, 5, 1, '#ffd27a'); }               // the lamp itself, switched on
+  } else if (lounge) R(259, LOUNGE.y0 + 12, 7, 5, '#8a7a5a');                                          // by day the lamp is off
   drawFireworks(SH, t, partyFrom, bridge ? { x: 99, y: 5, w: 122, h: 24 } : WIN);
   drawBubbles(bubbles);
   requestAnimationFrame(frame);
@@ -936,3 +947,6 @@ cv.addEventListener('mousemove', (e) => {
 });
 cv.addEventListener('mouseleave', () => { hoverProject = null; cv.style.cursor = ''; });
 setInterval(() => { renderCrew(); renderLocks(); }, 15000);
+
+// Modules with a client script (the statistics, the ideas link...) mount once the panel is up, then hear the room.
+mountModules().then(() => { emit('room', roomByProject(state.filter)?.id ?? state.filter); if (state.organizationMe) emit('state', state); });

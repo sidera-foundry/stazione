@@ -65,6 +65,14 @@ test('step-up, IP enforcement, session closure, critical alerts and emergency re
     assert.equal((await owner('POST', '/api/admin/invites', { role: 'member' })).body.code, 'step_up_required', 'expired confirmation is refused');
     // Restore only this fixture's confirmation to exercise the remaining controls independently.
     await q.query('update sessions set admin_until=$2 where id_hash=$1', [sha256(tokens.get('owner')), Date.now() + 300000]);
+    // A timed-out admin session asks to confirm the identity again, and the confirmation reopens it: no new sign-in.
+    await q.query('update sessions set admin_started_at=$2, admin_last_seen=$2 where id_hash=$1', [sha256(tokens.get('admin')), Date.now() - 16 * 60e3]);
+    const timedOut = await admin('GET', '/api/admin/session');
+    assert.equal(timedOut.status, 403); assert.equal(timedOut.body.code, 'step_up_required', 'timed-out admin asks for confirmation');
+    assert.equal((await admin('GET', '/api/admin/overview')).body.code, 'step_up_required', 'data stays shut until then');
+    assert.equal((await admin('POST', '/api/auth/step-up', { code: otp('admin') })).status, 200);
+    assert.equal((await admin('GET', '/api/admin/session')).status, 200, 'confirming reopens the admin console in the same session');
+    await q.query("update users set totp_last_step=0 where id='admin'"); // the checks below confirm again within the same 30 s step
     assert.equal((await owner('PUT', '/api/admin/ip-rules', { humans: ['192.0.2.0/24'], agents: [] })).status, 409, 'cannot exclude self');
     assert.equal((await owner('PUT', '/api/admin/ip-rules', { humans: ['10.0.0.0/24'], agents: ['::/129'] })).status, 400);
     assert.equal((await owner('PUT', '/api/admin/ip-rules', { humans: ['10.0.0.0/24'], agents: ['2001:db8::/32'] })).status, 200);

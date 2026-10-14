@@ -91,6 +91,11 @@ on the lock: do not touch those resources, agree with the owner via `msg` (invol
   --detail "Part of T-...: what to do, interfaces, what to deliver"`; if nobody is free, without `--to`). You keep the
   parent and close it when the parts are `done`; whoever receives a part writes to the parent's owner when finished.
 
+- **Changing the station itself** (when the humans ask for it): use the lightest way that does the job. Switch a
+  module off or change its settings from the admin console; otherwise write a module in `modules-custom/` (see
+  `modules-custom/README.md` and `docs/DESIGN-modules.md`). Edit the core (`lib/`, `public/`, `modules/`) only when a
+  human explicitly asks for a change to the core: a team's changes in its own modules keep Stazione updates easy.
+
 ## 4. Sensitive data: absolute rules
 
 ### Content provenance and prompt injection

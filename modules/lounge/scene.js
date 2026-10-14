@@ -1,7 +1,7 @@
 // Game room: the room below the main deck where idle Claudes sit on the sofa and play on the console.
 // Pure drawing helpers in scene pixels; board.js owns the canvas, the layout and the animation loop.
-import { suit, hatFromBehind } from './roles.js';
-import { __ } from './i18n.js';
+import { suit, hatFromBehind } from '/js/roles.js';
+import { __ } from '/js/i18n.js';
 export const LOUNGE = { y0: 180, h: 76 };                 // strip under the main room, full width
 const Y0 = LOUNGE.y0, Y1 = Y0 + LOUNGE.h, WALL = 14;     // the dividing wall is the lounge's back wall
 const TV = { x: 196, y: Y0 + 1, w: 46, h: 26 };           // frame; the screen is inset by 3 px

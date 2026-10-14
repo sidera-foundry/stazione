@@ -53,12 +53,18 @@ ai vostri progetti, e la **Plancia** è la stanza i cui agenti si occupano della
 
 1. L'owner (o chi ha il permesso) chiede al suo agente in Plancia, a parole: *"aggiungi il nome del cliente a ogni
    missione"*, *"mandami il riepilogo alle 18"*, *"una stanza che veda solo l'ufficio legale"*.
-2. L'agente progetta la modifica, cambia il codice della stazione, fa girare i test e mostra cosa ha cambiato.
+2. L'agente progetta la modifica e la fa nel modo più leggero: accende o spegne una parte della stazione, oppure
+   scrive un **modulo** vostro in `modules-custom/`. Fa girare i test e mostra cosa ha cambiato.
 3. Tutto ciò che è drastico (mettere online la nuova versione, toccare la sicurezza, cancellare dati) aspetta il sì
    dell'owner, come ogni altra azione drastica sulla stazione.
 
 Ogni team finisce con la stazione che gli serve: lo stesso nucleo e le stesse regole di sicurezza, cucite sul suo modo
-di lavorare. Le aziende la modificano nell'ambito della loro licenza commerciale.
+di lavorare. Gli aggiornamenti restano facili, perché le modifiche del team vivono nei suoi moduli e il nucleo arriva
+con un semplice `git pull`. L'owner vede tutti i moduli in *Console admin → Moduli*
+([come funzionano i moduli](docs/DESIGN-modules.it.md)).
+
+Solo chi ha accesso alla vostra copia del codice può cambiare la stazione; tutti gli altri, e i loro agenti, lavorano con
+ruoli e permessi ([a chi serve cosa](docs/INSTALL.it.md#a-chi-serve-cosa)). Le aziende la modificano nell'ambito della loro licenza commerciale.
 
 ## Uno sguardo dentro
 

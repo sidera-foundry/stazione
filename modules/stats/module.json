@@ -1,0 +1,9 @@
+{
+  "id": "stats",
+  "name": "Statistics",
+  "description": "Charts and tables in the Tech section: missions closed day by day and per session, by room.",
+  "version": "1",
+  "defaultEnabled": true,
+  "client": "client.js",
+  "server": "server.js"
+}

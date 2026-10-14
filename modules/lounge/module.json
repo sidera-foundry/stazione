@@ -1,0 +1,8 @@
+{
+  "id": "lounge",
+  "name": "Game room",
+  "description": "The room under the main deck where idle agents rest on the sofa, play and fetch drinks from the fridge. Switched off, idle agents stay at their desks.",
+  "version": "1",
+  "defaultEnabled": true,
+  "scene": "scene.js"
+}

@@ -33,7 +33,7 @@
         <ul class="list" id="bellList"></ul>
       </div>
     </span>
-    <a class="btn ghost" href="/ideas" title="Ideas board: for you humans only">💡 IDEAS</a>
+    <span class="module-slot" id="moduleHeader"></span>
     <a class="avatar-btn" href="/account" title="Account" aria-label="Account"><canvas id="avatar" width="64" height="64"></canvas></a>
     <button type="button" class="ghost" id="logout">SIGN OUT</button>
   </header>
@@ -111,6 +111,7 @@
       <ul class="list" id="opinionsList"></ul>
     </section>
     </div>
+  <div class="module-slot" id="moduleStation"></div>
   </div>
 
   <div class="view" data-view="missions" hidden>
@@ -136,6 +137,7 @@
     <h2>ACTIVE LOCKS <span class="count" id="lockCount"></span></h2>
     <ul class="list" id="lockList"><li class="empty">No resource locked.</li></ul>
   </section>
+  <div class="module-slot" id="moduleMissions"></div>
   </div>
 
   <div class="view" data-view="journal" hidden>
@@ -153,14 +155,10 @@
     <h2>DECISION LOG <span class="count" id="decCount"></span></h2>
     <ul class="list" id="decList"><li class="empty">No decisions recorded.</li></ul>
   </section>
+  <div class="module-slot" id="moduleJournal"></div>
   </div>
 
   <div class="view" data-view="tech" hidden>
-  <section class="panel stats">
-    <h2>STATISTICS</h2>
-    <p class="meta">Of the room chosen above (or of the whole station). Hover over the bars for details.</p>
-    <div id="stats"></div>
-  </section>
   <section class="panel ctx">
     <h2>PROJECT CONTEXT</h2>
     <div id="ctxList"><p class="empty">No context saved. The first agent working on a project writes it here.</p></div>
@@ -170,6 +168,7 @@
     <p class="meta" id="deployInfo">Loading the log…</p>
     <ul class="list" id="commitList"></ul>
   </section>
+  <div class="module-slot" id="moduleTech"></div>
   </div>
   </main>
 </div>

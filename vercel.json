@@ -57,6 +57,18 @@
       "destination": "/api/index?__route=admin/page"
     },
     {
+      "source": "/ideas",
+      "destination": "/api/index?__route=modules/ideas/page"
+    },
+    {
+      "source": "/ideas.html",
+      "destination": "/api/index?__route=modules/ideas/page"
+    },
+    {
+      "source": "/m/:id",
+      "destination": "/api/index?__route=modules/:id/page"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/index?__route=:path*"
     }
@@ -65,7 +77,8 @@
   "functions": {
     "api/index.js": {
       "maxDuration": 15,
-      "memory": 1024
+      "memory": 1024,
+      "includeFiles": "{modules,modules-custom}/**"
     }
   },
   "crons": [

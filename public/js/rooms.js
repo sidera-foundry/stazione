@@ -145,6 +145,7 @@ function tripPoint(trip, now) {
  * astro(x, y, crewMember, k, walk) draws one astronaut standing (or walking) at (x, y).
  * Returns the clickable boxes: [{ project, x, y, w, h }].
  */
+/** lounge: the agents on a break in the game room, or null when the game room module is off (no pod, no tube). */
 export function drawMap(SH, t, rooms, H, hover, astro, lounge = []) {
   const { R, T } = SH;
   const ctx = document.getElementById('scene').getContext('2d');           // the scene canvas (S = canvas px / scene px)
@@ -159,13 +160,13 @@ export function drawMap(SH, t, rooms, H, hover, astro, lounge = []) {
   others.slice(0, SLOTS.length).forEach((r, i) => place.push({ ...r, box: SLOTS[i], kind: 'project' }));
 
   // tubes first: from the Bridge to every pod (and the game room)
-  for (const p of [...place.filter((q) => q.box !== BRIDGE_BOX), { box: LOUNGE_BOX, room: { kind: 'lounge' } }]) {
+  for (const p of [...place.filter((q) => q.box !== BRIDGE_BOX), ...(lounge ? [{ box: LOUNGE_BOX, room: { kind: 'lounge' } }] : [])]) {
     tube(R, t, BRIDGE_BOX.cx, BRIDGE_BOX.cy, p.box.cx, p.box.cy, p.room.kind === 'lounge' ? '#c792ff' : roomColor(p.room));
   }
 
   // places changed since the last frame start a walk through the tubes; walkers are not drawn inside pods
   const boxOf = new Map(place.map((p) => [p.room.project, p.box]));
-  boxOf.set('lounge', LOUNGE_BOX);
+  if (lounge) boxOf.set('lounge', LOUNGE_BOX);
   const seen = new Set();
   const note = (c, key) => {
     if (!c.id) return;
@@ -175,13 +176,13 @@ export function drawMap(SH, t, rooms, H, hover, astro, lounge = []) {
     where.set(c.id, key);
   };
   for (const p of place) for (const c of p.crew) note(c, p.room.project);
-  for (const c of lounge) note(c, 'lounge');
+  for (const c of lounge || []) note(c, 'lounge');
   for (const id of [...where.keys()]) if (!seen.has(id)) where.delete(id);
   const walkers = [];
   for (const [id, trip] of trips) { const at = tripPoint(trip, t); if (!at || !seen.has(id)) trips.delete(id); else walkers.push({ trip, at }); }
   const home = (crew) => crew.filter((c) => !trips.has(c.id));
 
-  pod(SH, LOUNGE_BOX, { kind: 'lounge' }, 'lounge', '#c792ff', home(lounge), {}, t, false, astro);
+  if (lounge) pod(SH, LOUNGE_BOX, { kind: 'lounge' }, 'lounge', '#c792ff', home(lounge), {}, t, false, astro);
   const boxes = [];
   for (const p of place) {
     pod(SH, p.box, p.room, p.kind, roomColor(p.room), home(p.crew), p, t, hover === p.room.project, astro);

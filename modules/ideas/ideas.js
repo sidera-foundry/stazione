@@ -1,7 +1,7 @@
 // Ideas board: a chat-like board for the humans, with ideas pinned on top. Humans only: the API refuses
 // Claude tokens and none of this is in /api/state.
-import { $, el, api, say, __, locale } from './common.js';
-import { avatarKey, drawAvatar, animateAvatar } from './avatar.js';
+import { $, el, api, say, __, locale } from '/js/common.js';
+import { avatarKey, drawAvatar, animateAvatar } from '/js/avatar.js';
 
 let me = { avatar: 'astronaut' };
 let boardId = '', categoryId = '', categories = [];

@@ -1,17 +1,14 @@
-// Human-only ideas, scoped to a room (null = the organization's board).
-import { fail, str } from '../http.js';
-import { randomId } from '../crypto.js';
-import { ORG_ID, need } from '../permissions.js';
-import { requireRoom, scopeRoom } from '../room-access.js';
-import { audit } from '../auth.js';
+// Ideas board module, server side: human-only ideas, scoped to a room (null = the organization's board).
+// Built-in module: it keeps its historical /api/notes and /api/idea-categories paths. Its tables are in the core
+// schema (see lib/ideas-data.js); room scoping of these paths is enforced by the core (lib/room-access.js).
+import { fail, str } from '../../lib/http.js';
+import { randomId } from '../../lib/crypto.js';
+import { ORG_ID, need } from '../../lib/permissions.js';
+import { requireRoom, scopeRoom } from '../../lib/room-access.js';
+import { audit } from '../../lib/auth.js';
+import { ensureGeneral } from '../../lib/ideas-data.js';
 
 const noteId = (v) => (/^\d{1,18}$/.test(String(v)) ? v : fail(404, 'Idea not found'));
-export async function ensureGeneral(q, roomId = null) {
-  const id = roomId ? `general-room-${roomId}` : 'general-org';
-  const roles = (await q.query("select id from roles where org_id = $1 and id <> 'guest'", [ORG_ID])).map((r) => r.id);
-  await q.query('insert into idea_categories (id, org_id, room_id, name, view_roles, write_roles) values ($1, $2, $3, $4, $5, $5) on conflict (id) do nothing', [id, ORG_ID, roomId, 'General', JSON.stringify(roles)]);
-  return id;
-}
 
 async function board(q, ctx) {
   const roomId = ctx.body.room || ctx.query.get('room') || null;
@@ -39,7 +36,7 @@ async function roles(q, raw, field) {
   return [...new Set(raw)];
 }
 
-export const noteRoutes = [
+const ROUTES = [
   ['GET', '/api/idea-categories', { auth: 'human', perm: 'station.view' }, async (q, ctx) => {
     const room = await board(q, ctx);
     const categories = await q.query('select * from idea_categories where org_id = $1 and room_id is not distinct from $2 order by name', [ORG_ID, room]);
@@ -100,3 +97,7 @@ export const noteRoutes = [
     return { ok: true };
   }],
 ];
+
+export default function setup(station) {
+  for (const route of ROUTES) station.route(...route);
+}

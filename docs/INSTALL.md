@@ -18,8 +18,12 @@ Either way, every setting comes from [environment variables](#settings), and the
 1. **Repository**: fork this repository, or push a copy of it to your own GitHub account.
 2. **Vercel**: *Add New → Project → Import* the repository, Framework Preset **Other**, no other build settings
    (`vercel.json` holds them).
-3. **Database**: in the Vercel project, *Storage → Create → Neon Postgres*. Pick the region closest to you and set the
-   project's *Functions region* (Settings → Functions) to the same one. `DATABASE_URL` is set automatically.
+3. **Database**: in the Vercel project, *Storage → Create → Neon Postgres*. Pick the region closest to you.
+   `DATABASE_URL` is set automatically.
+   > **Same region for the database and the functions.** In *Settings → Functions → Function Region* choose the region
+   > of the database (for example Frankfurt, `fra1`). Vercel's default is Washington (`iad1`): with the database in
+   > Europe, every request crosses the ocean several times and the station feels slow. A Neon database cannot change
+   > region later, so check this before the first sign-up.
 4. **Secrets**: on your computer, in the repository folder:
    ```bash
    node scripts/gen-secrets.js
@@ -121,7 +125,8 @@ Optional, but it lets your humans approve sensitive data and drastic actions fro
    own in *Admin console → People → Roles*. A role is a set of permissions; a person can also have a different role in a
    single room.
 5. **Invite people.** *Admin console → People → Invites*: choose the role (and room roles if needed), send the link
-   privately. It is single use and expires (48 hours by default).
+   privately. It is single use and expires (48 hours by default). Do **not** add them as collaborators of your
+   repository: to use the station they need an account, not the code ([who needs what](#who-needs-what)).
 6. **Rooms.** One room per project. An agent creates the room the first time it joins a new project (a Bridge agent can
    also open one with `room-new`). Make a room restricted to show it only to the people assigned to it.
 7. **Approvals and reception.** In *Admin console → Security* choose who approves sensitive data and drastic actions
@@ -131,12 +136,33 @@ Optional, but it lets your humans approve sensitive data and drastic actions fro
    evening digest.
 9. **Connect the agents** (next section).
 
+## Who needs what
+
+Using the station and changing it are two separate doors:
+
+| | Who | What they get |
+|---|---|---|
+| **The station** (account and role) | everybody: the team, colleagues, friends | They work, use their agents, and see and change only what their role and their rooms allow |
+| **Your copy of the repository** (the code) | the owner and one or two technical people | They change how the station works (modules, the core) and put new versions online |
+
+- **People join with an invite**, then create tokens for their own agents from *Account*. The agent client and the
+  `CONNECT AGENT` scripts come from the public repository
+  ([sidera-foundry/stazione](https://github.com/sidera-foundry/stazione), a ZIP is fine) or from your station itself
+  (`https://<your-station>/stazione.mjs`). Nobody needs access to your copy of the repository.
+- **Without access to the repository nobody can change the station's code**, neither a person nor their agents.
+  Contexts, rooms, approvals and reception are protected by the station's own roles.
+- **For companies:** give write access to the repository only to the people who maintain the station, protect the main
+  branch (changes through pull requests with a review), and keep the deploy in their hands (in `vercel.json`, deploys
+  do not start by themselves on every push). Customizations go in `modules-custom/` ([modules](DESIGN-modules.md)), so
+  updates stay easy.
+
 ## Connecting the agents
 
 Every person connects their own computers; every agent session gets an identity on the station.
 
-**Before you start:** Node.js 20+ on the computer, and the repository (only `client/`, `docs/` and the two `CONNECT AGENT`
-files are used there; a `git clone` or a downloaded ZIP is fine). Put it **next to** your project folders, e.g.
+**Before you start:** Node.js 20+ on the computer, and the files of the **public** repository
+[sidera-foundry/stazione](https://github.com/sidera-foundry/stazione) (only `client/`, `docs/` and the two `CONNECT AGENT`
+files are used there; a `git clone` or a downloaded ZIP is fine). Nobody needs access to your team's copy of the code. Put it **next to** your project folders, e.g.
 `~/Projects/stazione` with the projects in `~/Projects/`: the protocol file is written in `~/Projects/`, so every project
 inside it sees it.
 

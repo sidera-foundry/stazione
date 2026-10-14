@@ -3,7 +3,7 @@
 // to an Italian reader, so it fails here instead.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { IT, __, lang } from '../public/js/i18n.js';
 
 const dir = new URL('../public/', import.meta.url);
@@ -31,17 +31,30 @@ function keysOf(s) {
 // Static texts that read the same in both languages.
 const SAME = new Set(['STAZIONE', 'Stazione', 'FX', 'Account', 'Username', 'Password', 'AVATAR', 'Avatar', '×', '—', '·', '+', '/link', 'Telegram', 'Robot', 'Offline', 'In comms', 'Stazione · Account', 'LOG', 'STAZIONE_TOKEN', '2 · GOOGLE AUTHENTICATOR', 'src/inventory, api:/items']);
 
+// Built-in modules (modules/<id>/): their browser scripts and pages are checked like the core's, and so are the
+// texts of their module.json (name, description, setting labels), which the admin console shows translated.
+const modulesDir = new URL('../modules/', import.meta.url);
+const builtinModules = readdirSync(modulesDir).filter((d) => existsSync(new URL(`${d}/module.json`, modulesDir)));
+
 test('every module text has an Italian translation', () => {
   const missing = [];
   for (const f of readdirSync(new URL('js/', dir))) {
     if (f.endsWith('.js') && f !== 'i18n.js') for (const k of keysOf(read(`js/${f}`))) if (!(k in IT)) missing.push(`${f}: ${k}`);
   }
+  for (const m of builtinModules) {
+    for (const f of readdirSync(new URL(`${m}/`, modulesDir)).filter((x) => x.endsWith('.js') && x !== 'server.js')) {
+      for (const k of keysOf(readFileSync(new URL(`${m}/${f}`, modulesDir), 'utf8'))) if (!(k in IT) && !(k in (manifest(m).translations?.it || {}))) missing.push(`modules/${m}/${f}: ${k}`);
+    }
+    const mf = manifest(m);
+    for (const k of [mf.name, mf.description, ...(mf.settings || []).map((x) => x.label)].filter(Boolean)) if (!(k in IT) && !(k in (mf.translations?.it || {}))) missing.push(`modules/${m}/module.json: ${k}`);
+  }
   assert.deepEqual(missing, []);
 });
+function manifest(m) { return JSON.parse(readFileSync(new URL(`${m}/module.json`, modulesDir), 'utf8')); }
 
 test('every static HTML text has an Italian translation', () => {
   const missing = [];
-  for (const f of [...readdirSync(dir).filter((x) => x.endsWith('.html')), '../lib/admin-page.html']) {
+  for (const f of [...readdirSync(dir).filter((x) => x.endsWith('.html')), '../lib/admin-page.html', ...builtinModules.flatMap((m) => readdirSync(new URL(`${m}/`, modulesDir)).filter((x) => x.endsWith('.html')).map((x) => `../modules/${m}/${x}`))]) {
     const html = read(f).replace(/<script[\s\S]*?<\/script>|<svg[\s\S]*?<\/svg>|<div class="secret-box"[^>]*>(?!\[)[^<]*<\/div>/g, '');
     const texts = [...html.matchAll(/>([^<]+)</g)].map((m) => m[1].replace(/\s+/g, ' ').trim());
     const attrs = [...html.matchAll(/\b(?:placeholder|title|aria-label|alt)="([^"]*)"/g)].map((m) => m[1].replace(/&#10;/g, '\n'));

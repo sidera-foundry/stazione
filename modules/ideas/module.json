@@ -1,0 +1,11 @@
+{
+  "id": "ideas",
+  "name": "Ideas board",
+  "description": "A board for the humans only: ideas by room and by category, with who can see and write each category. Agents never see it.",
+  "version": "1",
+  "defaultEnabled": true,
+  "server": "server.js",
+  "page": "page.html",
+  "client": "client.js",
+  "assets": ["ideas.js"]
+}

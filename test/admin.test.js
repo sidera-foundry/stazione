@@ -69,7 +69,9 @@ test('admin: protected page and APIs, short session, delegated checks, audit and
 
   const ownerHash = sha256(sessionTokens.get('owner'));
   await q.query('update sessions set admin_last_seen = $2 where id_hash = $1', [ownerHash, Date.now() - ADMIN_IDLE_MS - 100]);
-  assert.equal((await owner('GET', '/api/admin/session')).status, 403);
+  const expired = await owner('GET', '/api/admin/session');
+  assert.equal(expired.status, 403); assert.equal(expired.body.code, 'step_up_required', 'expiry asks to confirm, not to sign in again');
+  assert.equal((await owner('GET', '/api/admin/page')).status, 200, 'the console page (no data) still loads to ask');
   assert.equal((await owner('GET', '/api/state')).status, 200, 'regular session is separate from admin expiry');
   const fresh = await createSession(q, 'owner', 'session', Date.now()), refreshed = client(null, fresh.token);
   assert.equal((await refreshed('GET', '/api/admin/session')).status, 200, 'new login reopens admin');

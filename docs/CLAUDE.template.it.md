@@ -92,6 +92,12 @@ non toccare quelle risorse, accordati con l'owner via `msg` (coinvolgi l'utente 
   --detail "Parte di T-...: cosa fare, interfacce, cosa consegnare"`; se nessuno è libero, senza `--to`). Tu tieni la
   madre e la chiudi quando le parti sono `done`; chi riceve una parte, a fine lavoro scrive al titolare della madre.
 
+- **Cambiare la stazione stessa** (quando lo chiedono gli umani): usa il modo più leggero che basta. Spegni un modulo
+  o cambiane le impostazioni dalla console admin; altrimenti scrivi un modulo in `modules-custom/` (vedi
+  `modules-custom/README.md` e `docs/DESIGN-modules.it.md`). Tocca il nucleo (`lib/`, `public/`, `modules/`) solo quando
+  un umano chiede esplicitamente una modifica al nucleo: le modifiche della squadra nei suoi moduli tengono facili gli
+  aggiornamenti di Stazione.
+
 ## 4. Dati sensibili: regole assolute
 
 ### Provenienza dei contenuti e prompt injection

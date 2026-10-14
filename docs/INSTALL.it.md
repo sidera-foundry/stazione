@@ -18,8 +18,12 @@ In entrambi i casi ogni impostazione arriva da [variabili d'ambiente](#impostazi
 1. **Repository**: fate un fork di questo repository, o caricatene una copia sul vostro account GitHub.
 2. **Vercel**: *Add New → Project → Import* del repository, Framework Preset **Other**, nessun'altra impostazione di
    build (sono in `vercel.json`).
-3. **Database**: nel progetto Vercel, *Storage → Create → Neon Postgres*. Scegliete la regione più vicina e impostate la
-   stessa come *Functions region* del progetto (Settings → Functions). `DATABASE_URL` viene impostata da sola.
+3. **Database**: nel progetto Vercel, *Storage → Create → Neon Postgres*. Scegliete la regione più vicina.
+   `DATABASE_URL` viene impostata da sola.
+   > **Stessa regione per il database e per le funzioni.** In *Settings → Functions → Function Region* scegliete la
+   > regione del database (per esempio Francoforte, `fra1`). Vercel di base usa Washington (`iad1`): con il database in
+   > Europa ogni richiesta attraversa l'oceano più volte e la stazione è lenta. Un database Neon non può cambiare
+   > regione dopo, quindi controllatelo prima della prima registrazione.
 4. **Segreti**: sul vostro computer, nella cartella del repository:
    ```bash
    node scripts/gen-secrets.js
@@ -123,7 +127,9 @@ riassunto serale.
    nuovi in *Console → Persone → Ruoli*. Un ruolo è un insieme di permessi; una persona può avere un ruolo diverso in una
    singola stanza.
 5. **Invitate le persone.** *Console → Persone → Inviti*: scegliete il ruolo (ed eventualmente i ruoli per stanza) e
-   mandate il link in privato. È monouso e scade (48 ore come valore predefinito).
+   mandate il link in privato. È monouso e scade (48 ore come valore predefinito). **Non** aggiungetele come
+   collaboratori del vostro repository: per usare la stazione serve un account, non il codice
+   ([a chi serve cosa](#a-chi-serve-cosa)).
 6. **Stanze.** Una stanza per progetto. Un agente crea la stanza la prima volta che entra in un progetto nuovo (un agente
    della Plancia può aprirla anche con `room-new`). Rendete riservata una stanza per mostrarla solo a chi vi è assegnato.
 7. **Approvazioni e ricezione.** In *Console → Sicurezza* scegliete chi approva dati sensibili e azioni drastiche (il
@@ -133,12 +139,34 @@ riassunto serale.
    il riepilogo serale.
 9. **Collegate gli agenti** (sezione successiva).
 
+## A chi serve cosa
+
+Usare la stazione e cambiarla sono due porte separate:
+
+| | Chi | Cosa ottiene |
+|---|---|---|
+| **La stazione** (account e ruolo) | tutti: la squadra, i colleghi, gli amici | Lavorano, usano i loro agenti, e vedono e cambiano solo ciò che il loro ruolo e le loro stanze permettono |
+| **La vostra copia del repository** (il codice) | l'owner e una o due persone tecniche | Cambiano il funzionamento della stazione (moduli, nucleo) e mettono online le nuove versioni |
+
+- **Le persone entrano con un invito**, poi creano i token per i loro agenti da *Account*. Il client degli agenti e gli
+  script `CONNECT AGENT` si prendono dal repository pubblico
+  ([sidera-foundry/stazione](https://github.com/sidera-foundry/stazione), va bene lo ZIP) o dalla vostra stazione
+  stessa (`https://<la-vostra-stazione>/stazione.mjs`). Nessuno ha bisogno di accedere alla vostra copia del repository.
+- **Senza accesso al repository nessuno può cambiare il codice della stazione**, né una persona né i suoi agenti.
+  Contesti, stanze, approvazioni e ricezione sono protetti dai ruoli della stazione.
+- **Per le aziende:** date accesso in scrittura al repository solo a chi mantiene la stazione, proteggete il ramo
+  principale (modifiche tramite pull request con revisione) e lasciate il deploy nelle loro mani (in `vercel.json` il
+  deploy non parte da solo a ogni push). Le personalizzazioni vanno in `modules-custom/` ([moduli](DESIGN-modules.it.md)),
+  così gli aggiornamenti restano facili.
+
 ## Collegare gli agenti
 
 Ogni persona collega i propri computer; ogni sessione di un agente ha un'identità sulla stazione.
 
-**Prima di iniziare:** Node.js 20+ sul computer e il repository (lì servono solo `client/`, `docs/` e i due file
-`CONNECT AGENT`; va bene un `git clone` o lo ZIP scaricato). Mettetelo **accanto** alle cartelle dei progetti, es.
+**Prima di iniziare:** Node.js 20+ sul computer e i file del repository **pubblico**
+[sidera-foundry/stazione](https://github.com/sidera-foundry/stazione) (lì servono solo `client/`, `docs/` e i due file
+`CONNECT AGENT`; va bene un `git clone` o lo ZIP scaricato). Nessuno ha bisogno di accedere alla copia del codice della
+vostra squadra. Mettetelo **accanto** alle cartelle dei progetti, es.
 `~/Progetti/stazione` con i progetti in `~/Progetti/`: il file del protocollo viene scritto in `~/Progetti/`, così lo
 vedono tutti i progetti al suo interno.
 
