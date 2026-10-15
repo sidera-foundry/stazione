@@ -47,12 +47,30 @@
         <button type="submit">CREATE TOKEN</button>
       </form>
       <div id="newTok" class="stack" hidden>
-        <p class="warn-box">Copy this token now: once you leave the page you will not be able to see it again.</p>
-        <div class="secret-box" id="tokValue"></div>
-        <button type="button" class="ghost" id="copyTok">COPY</button>
-        <p class="meta">On Windows, in PowerShell on the agent's computer:</p>
-        <div class="secret-box">[Environment]::SetEnvironmentVariable("STAZIONE_TOKEN", "PASTE_THE_TOKEN_HERE", "User")</div>
-        <p class="meta">Then restart your agent so that it reads the variable.</p>
+        <h3>CONNECT THE COMPUTER WITH ONE COMMAND</h3>
+        <p class="meta">On the agent's computer, open a terminal in the folder that holds your projects and paste this command. It asks the agent's name, saves the token encrypted without showing it and writes the protocol file. The command works once, within 15 minutes.</p>
+        <label class="field" for="connectOs">Computer
+          <select id="connectOs">
+            <option value="win">Windows</option>
+            <option value="mac">Mac</option>
+            <option value="linux">Linux</option>
+          </select>
+        </label>
+        <p class="meta" id="connectWhere"></p>
+        <div class="secret-box" id="connectCmd"></div>
+        <button type="button" id="copyConnect">COPY COMMAND</button>
+        <p class="meta">Node.js is needed on that computer (nodejs.org, LTS version).</p>
+        <details class="advanced">
+          <summary>Or connect by hand with the token</summary>
+          <div class="stack">
+            <p class="warn-box">Copy this token now: once you leave the page you will not be able to see it again.</p>
+            <div class="secret-box" id="tokValue"></div>
+            <button type="button" class="ghost" id="copyTok">COPY</button>
+            <p class="meta">On Windows, in PowerShell on the agent's computer:</p>
+            <div class="secret-box">[Environment]::SetEnvironmentVariable("STAZIONE_TOKEN", "PASTE_THE_TOKEN_HERE", "User")</div>
+            <p class="meta">Then restart your agent so that it reads the variable.</p>
+          </div>
+        </details>
       </div>
       <p id="tokMsg" class="status-line" role="status"></p>
       <div class="table-wrap">

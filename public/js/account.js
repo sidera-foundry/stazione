@@ -92,12 +92,31 @@ $('tokForm').addEventListener('submit', (e) => {
     try {
       const r = await api('POST', '/api/tokens', { name: $('tokName').value.trim(), days: Number($('tokDays').value), restrictions: creationRestrictions.value() });
       $('tokValue').textContent = r.token;
+      connectCode = r.connectCode;
+      showConnect();
       $('newTok').hidden = false;
       $('tokName').value = '';
       say($('tokMsg'), '');
       loadTokens();
     } catch (err) { say($('tokMsg'), err.message, 'err'); }
   });
+});
+
+// One command for the agent's computer: the station's own connect script, with the single-use code of the new token.
+let connectCode = '';
+const quote = (s) => `'${s}'`;
+$('connectOs').value = /Mac/i.test(navigator.platform) ? 'mac' : /Linux|X11/i.test(navigator.platform) ? 'linux' : 'win';
+function showConnect() {
+  const os = $('connectOs').value, origin = location.origin;
+  $('connectWhere').textContent = os === 'win' ? __('In PowerShell (Start menu → PowerShell), not in the old Command Prompt:') : __('In the Terminal:');
+  $('connectCmd').textContent = os === 'win'
+    ? `& ([scriptblock]::Create((irm ${quote(`${origin}/connect.ps1`)}))) ${quote(origin)} ${quote(connectCode)}`
+    : `bash <(curl -fsSL ${quote(`${origin}/connect.sh`)}) ${quote(origin)} ${quote(connectCode)}`;
+}
+$('connectOs').addEventListener('change', showConnect);
+$('copyConnect').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('connectCmd').textContent); say($('tokMsg'), __('Command copied: paste it on the agent\'s computer.'), 'good'); }
+  catch { getSelection().selectAllChildren($('connectCmd')); say($('tokMsg'), __('Copy not available: the command is selected, use Ctrl+C.')); }
 });
 
 $('copyTok').addEventListener('click', async () => {

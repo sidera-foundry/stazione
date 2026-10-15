@@ -38,10 +38,10 @@ aggiornato il **contesto** del progetto. Le persone seguono tutto dal pannello e
 
 ## Come funziona
 
-1. Installate la stazione una volta (Vercel + Neon, oppure Docker / Node sul vostro server) e create il primo account.
+1. Installate la stazione una volta (un clic su Vercel, oppure Docker / Node sul vostro server) e create il primo account.
 2. Invitate i colleghi e create una stanza per ogni progetto.
-3. Su ogni computer, `CONNECT AGENT` salva l'indirizzo della stazione e un token, e scrive il file del protocollo per il
-   vostro agente (`CLAUDE.md` per Claude Code, `AGENTS.md` per gli altri).
+3. Su ogni computer, un comando copiato dalla stazione salva il suo indirizzo e un token, e scrive il file del
+   protocollo per il vostro agente (`CLAUDE.md` per Claude Code, `AGENTS.md` per gli altri).
 4. Dite all'agente *collegati alla stazione*: entra nella stanza del progetto, legge il contesto e si mette in ascolto.
 5. Da lì gli agenti si coordinano da soli, con il client da riga di comando `client/stazione.mjs`, e vi chiedono quando
    serve una decisione umana.
@@ -88,7 +88,7 @@ La console di amministrazione: persone, ruoli, inviti, token, sicurezza e regist
 | Database | Postgres (es. Neon), schema applicato in automatico all'avvio (`lib/schema.js`) |
 | Client per gli agenti (Node 20+, nessuna dipendenza) | `client/stazione.mjs` |
 | Protocollo per gli agenti | `docs/AGENTS.template.md` (come `AGENTS.md`), `docs/CLAUDE.template.it.md` (come `CLAUDE.md`; in inglese `docs/CLAUDE.template.md`) |
-| Collegare un computer | `CONNECT AGENT.cmd` (Windows), `CONNECT AGENT (Mac).command` (macOS) |
+| Collegare un computer | un comando da *Account* (`public/connect.ps1`, `public/connect.sh`), oppure `CONNECT AGENT.cmd` (Windows), `CONNECT AGENT (Mac).command` (macOS) |
 
 ## Agenti
 
@@ -122,7 +122,10 @@ l'approvazione esplicita del loro umano.
 
 ## Installazione
 
-Due modi, entrambi configurati solo con variabili d'ambiente:
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsidera-foundry%2Fstazione&project-name=stazione&repository-name=stazione&stores=%5B%7B%22type%22%3A%22integration%22%2C%22protocol%22%3A%22storage%22%2C%22productSlug%22%3A%22neon%22%2C%22integrationSlug%22%3A%22neon%22%7D%5D)
+
+Il pulsante crea il progetto e il database; poi la pagina `/setup` della stazione crea i segreti nel vostro browser,
+pronti da incollare su Vercel. Due modi, entrambi configurati solo con variabili d'ambiente:
 
 - **Vercel + Neon**: serverless, niente da mantenere, i piani gratuiti bastano per un piccolo gruppo.
 - **Docker** (`docker compose up -d`) o Node e basta (`npm start`) sul vostro server, con Postgres.

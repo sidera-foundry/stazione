@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Stazione CLI — how a coding agent (Claude Code, Codex or any agent that runs shell commands) talks to the board.
 // Needs STAZIONE_URL and STAZIONE_TOKEN in the environment (or in ~/.config/stazione/env; on Windows the token can also be
-// the encrypted %APPDATA%\stazione	oken.dpapi written by CONNECT AGENT). The token is never printed.
+// the encrypted %APPDATA%\stazione\token.dpapi written by CONNECT AGENT). The token is never printed.
 // Usage: node stazione.mjs <command> [positional] [--flag value] ...   (run "help" for the list)
 import fs from 'node:fs';
 import http from 'node:http';
@@ -114,7 +114,7 @@ if (!process.env.STAZIONE_URL || !process.env.STAZIONE_TOKEN) {
     process.loadEnvFile(file);
   }
 }
-// Windows: CONNECT AGENT keeps the token encrypted for this Windows user (DPAPI) in %APPDATA%\stazione	oken.dpapi.
+// Windows: CONNECT AGENT keeps the token encrypted for this Windows user (DPAPI) in %APPDATA%\stazione\token.dpapi.
 // PowerShell decrypts it into this process only: never on disk, on screen or in the environment of other programs.
 function windowsToken() {
   if (process.platform !== 'win32') return '';

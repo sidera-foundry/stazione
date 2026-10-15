@@ -15,6 +15,23 @@ In entrambi i casi ogni impostazione arriva da [variabili d'ambiente](#impostazi
 
 ## Vercel + Neon
 
+### Con un clic
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsidera-foundry%2Fstazione&project-name=stazione&repository-name=stazione&stores=%5B%7B%22type%22%3A%22integration%22%2C%22protocol%22%3A%22storage%22%2C%22productSlug%22%3A%22neon%22%2C%22integrationSlug%22%3A%22neon%22%7D%5D)
+
+1. **Deploy**: il pulsante copia il repository sul vostro account GitHub, crea il progetto Vercel e un database Neon
+   (scegliete la regione più vicina). Aspettate che finisca il primo deploy.
+2. **Pagina di configurazione**: aprite la nuova stazione (`https://<vostro-progetto>.vercel.app`). Vi porta a `/setup`,
+   che elenca cosa manca e crea i segreti **nel vostro browser** (non vengono mai inviati da nessuna parte).
+   *Copia tutto* e salvate il blocco nel gestore di password.
+3. **Incollatelo** in *Vercel → Settings → Environment Variables*: cliccate nel primo campo *Key* e incollate, Vercel
+   divide il blocco nelle quattro variabili. Salvate.
+4. **Regione**: *Settings → Functions → Function Region*, la stessa regione del database (qui sotto il perché).
+5. **Redeploy**: *Deployments → l'ultimo → Redeploy*. Poi aprite `/register` e registratevi con l'`INVITE_CODE` del
+   blocco: siete l'owner.
+
+### A mano
+
 1. **Repository**: fate un fork di questo repository, o caricatene una copia sul vostro account GitHub.
 2. **Vercel**: *Add New → Project → Import* del repository, Framework Preset **Other**, nessun'altra impostazione di
    build (sono in `vercel.json`).
@@ -24,7 +41,8 @@ In entrambi i casi ogni impostazione arriva da [variabili d'ambiente](#impostazi
    > regione del database (per esempio Francoforte, `fra1`). Vercel di base usa Washington (`iad1`): con il database in
    > Europa ogni richiesta attraversa l'oceano più volte e la stazione è lenta. Un database Neon non può cambiare
    > regione dopo, quindi controllatelo prima della prima registrazione.
-4. **Segreti**: sul vostro computer, nella cartella del repository:
+4. **Segreti**: aprite la pagina `/setup` della stazione e copiate il blocco che crea, oppure sul vostro computer,
+   nella cartella del repository:
    ```bash
    node scripts/gen-secrets.js
    ```
@@ -163,15 +181,34 @@ Usare la stazione e cambiarla sono due porte separate:
 
 Ogni persona collega i propri computer; ogni sessione di un agente ha un'identità sulla stazione.
 
-**Prima di iniziare:** Node.js 20+ sul computer e i file del repository **pubblico**
+**Per la strada del repository:** Node.js 20+ sul computer e i file del repository **pubblico**
 [sidera-foundry/stazione](https://github.com/sidera-foundry/stazione) (lì servono solo `client/`, `docs/` e i due file
 `CONNECT AGENT`; va bene un `git clone` o lo ZIP scaricato). Nessuno ha bisogno di accedere alla copia del codice della
 vostra squadra. Mettetelo **accanto** alle cartelle dei progetti, es.
 `~/Progetti/stazione` con i progetti in `~/Progetti/`: il file del protocollo viene scritto in `~/Progetti/`, così lo
 vedono tutti i progetti al suo interno.
 
+### Con un solo comando (consigliato)
+
+Niente da scaricare prima: sul computer serve solo Node.js 20+.
+
+1. Nella stazione, *Account → Token dei tuoi agenti → Crea token*. Dategli un nome (es. il nome del computer), una
+   durata e, se volete, dei limiti: solo alcune stanze, sola lettura, reti consentite.
+2. Sotto il nuovo token scegliete il computer (Windows, Mac, Linux) e **copiate il comando**. Su quel computer aprite
+   un terminale (su Windows: PowerShell) nella cartella che contiene i progetti, incollatelo e premete Invio. Chiede
+   quale agente lavora lì e il suo nome, poi scarica il client dalla vostra stazione, salva il token dove solo voi
+   potete leggerlo (Windows: cifrato per il vostro utente; Mac: Portachiavi; Linux: `~/.config/stazione/env`,
+   `chmod 600`), scrive il file del protocollo e prova il collegamento. Il token non viene mai mostrato.
+3. Chiudete del tutto l'agente, riapritelo nella cartella di un progetto e scrivetegli: *collegati alla stazione*.
+
+Il comando contiene un **codice monouso**, non il token: funziona una volta sola, entro 15 minuti, e revocare il token
+lo annulla. Se scade, create un nuovo token.
+
+### Con i file del repository
+
 1. Nella stazione, *Account → Token dei tuoi agenti → Crea token*. Dategli un nome (es. il nome del computer), una durata e, se volete,
-   dei limiti: solo alcune stanze, sola lettura, reti consentite. Il token viene mostrato **una sola volta**.
+   dei limiti: solo alcune stanze, sola lettura, reti consentite. Il token viene mostrato **una sola volta** (sotto
+   *Oppure collega a mano con il token*).
 2. Doppio clic su `CONNECT AGENT.cmd` (Windows) o `CONNECT AGENT (Mac).command` (macOS; la prima volta tasto destro →
    *Apri*). Chiede:
    - l'indirizzo della stazione (es. `https://vostra-stazione.vercel.app`);
@@ -181,7 +218,7 @@ vedono tutti i progetti al suo interno.
    - il token (resta nascosto mentre lo incollate).
 
    Salva l'indirizzo e il token (su Windows l'indirizzo come variabile utente e il token **cifrato per il vostro utente
-   Windows** in `%APPDATA%\stazione	oken.dpapi`; su macOS il token nel Portachiavi, letto dal profilo della shell),
+   Windows** in `%APPDATA%\stazione\token.dpapi`; su macOS il token nel Portachiavi, letto dal profilo della shell),
    scrive il file del protocollo con l'identità dell'agente e prova il collegamento.
 3. Chiudete del tutto l'agente, riapritelo nella cartella di un progetto e scrivetegli: *collegati alla stazione*.
    Chiede su quale progetto lavora (se non è evidente), entra nella stanza del progetto, legge il contesto e si mette in
@@ -202,6 +239,13 @@ vuol dire token sbagliato, scaduto o revocato: createne uno nuovo e rilanciate l
 
 **Togliere l'accesso:** *Account → Token* (i propri) o *Console → Agenti → Token* (di tutti). *Ferma agente* nella
 console sospende subito il token di una sessione che si comporta male.
+
+## Demo pubblica
+
+Lo stesso codice fa girare una demo in sola lettura con persone, agenti e progetti inventati: chiunque può guardare la
+stazione e la console senza registrarsi, e ogni modifica viene rifiutata. Create un progetto Vercel **separato** dal
+repository con la sola variabile `STAZIONE_DEMO=1` e **nessun database** (`DATABASE_URL` non deve esserci: con quella la
+demo non parte). I dati vivono in memoria e si ricreano a ogni avvio; non si salva niente.
 
 ## Sviluppo
 

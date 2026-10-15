@@ -369,3 +369,13 @@ details.tech > summary { color: var(--dim); font-size: 13px; }
 details.module-settings { margin-top: 8px; }
 .module-slot:empty { display: none; }
 #moduleHeader { display: contents; }
+
+/* ---------- setup page, demo strip, one-command connection ---------- */
+.setup-missing { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 4px; }
+.setup-steps { margin: 0; padding-left: 26px; display: flex; flex-direction: column; gap: 6px; }
+.env-block { width: 100%; box-sizing: border-box; resize: vertical; color: var(--fg); font-family: inherit; white-space: pre; overflow-x: auto; }
+.setup .row { display: flex; flex-wrap: wrap; gap: 10px; }
+.demo-banner { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: center; align-items: baseline; padding: 6px 12px; background: var(--amber-deep); color: #fff; font-size: 18px; text-align: center; }
+.demo-banner a { color: #fff; text-decoration: underline; }
+#newTok h3 { margin: 6px 0 0; font-size: 18px; color: var(--amber); }
+#connectCmd { user-select: all; }

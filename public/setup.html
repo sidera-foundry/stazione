@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Stazione · Setup</title>
+<link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/restyle.css" data-restyle>
+<script src="/js/restyle.js"></script>
+<script type="module" src="/js/setup.js"></script>
+</head>
+<body>
+<main class="auth setup">
+  <h1>STAZIONE</h1>
+  <section class="panel">
+    <h2>SET UP YOUR STATION</h2>
+    <p id="state" class="status-line" role="status">Checking the station...</p>
+    <ul id="missing" class="setup-missing" hidden></ul>
+  </section>
+  <section class="panel" id="secrets" hidden>
+    <h2>1 · YOUR SECRETS</h2>
+    <p class="meta">This browser made them for you, right now: they are never sent anywhere. Each time you open this page you get a new set, so copy this one and use only this one.</p>
+    <textarea id="envBlock" class="secret-box env-block" rows="5" readonly spellcheck="false" aria-label="The secrets of the station"></textarea>
+    <div class="row">
+      <button type="button" id="copyEnv">COPY ALL</button>
+      <button type="button" class="ghost" id="again">MAKE NEW ONES</button>
+    </div>
+    <p class="warn-box">Save the whole block in your password manager. Without DATA_ENCRYPTION_KEY the encrypted data of the station cannot be read, and you need INVITE_CODE once, to create the owner account.</p>
+  </section>
+  <section class="panel" id="vercel" hidden>
+    <h2>2 · PUT THEM ON VERCEL</h2>
+    <ol class="setup-steps">
+      <li>Open your project on Vercel, then Settings, Environment Variables.</li>
+      <li>Click in the first Key field and paste: Vercel splits the block into the four variables by itself. Save.</li>
+      <li>No database yet? Storage, Create, Neon Postgres, in the region closest to you.</li>
+      <li>Settings, Functions, Function Region: the same region as the database.</li>
+      <li>Deployments, the last one, Redeploy. Then open this page again.</li>
+    </ol>
+    <p class="meta">With Docker the block goes in the .env file next to docker-compose.yml (or use node scripts/gen-secrets.js --docker).</p>
+  </section>
+  <nav class="links" id="ready" hidden>
+    <a href="/register">Create the owner account (with INVITE_CODE)</a>
+    <a href="/login">Sign in</a>
+  </nav>
+</main>
+</body>
+</html>

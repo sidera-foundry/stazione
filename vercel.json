@@ -41,6 +41,15 @@
           "value": "noindex, nofollow"
         }
       ]
+    },
+    {
+      "source": "/connect.(ps1|sh)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        }
+      ]
     }
   ],
   "rewrites": [

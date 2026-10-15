@@ -28,6 +28,9 @@ export async function api(method, path, body, confirmed = false) {
   });
   let data = null;
   try { data = await res.json(); } catch { /* empty body */ }
+  if (res.headers.get('x-stazione-demo') === '1') demoBanner();
+  // A new station without its settings: the setup page says what is missing and makes the secrets.
+  if (data?.code === 'setup_required' && typeof location !== 'undefined' && location.pathname !== '/setup') { location.replace('/setup'); return new Promise(() => {}); }
   if (!res.ok) {
     if (!confirmed && data?.code === 'step_up_required' && await confirmIdentity(data.error)) return api(method, path, body, true);
     const err = new Error(data?.error || __`Error ${res.status}`);
@@ -41,6 +44,17 @@ export async function api(method, path, body, confirmed = false) {
     err.status = 202; err.data = data; throw err;
   }
   return data;
+}
+
+/** The public demo: made-up data, changes switched off. A strip on top says so, once per page. */
+function demoBanner() {
+  if (document.querySelector('.demo-banner')) return;
+  const bar = el('div', 'demo-banner');
+  const link = el('a', null, __('Install your own'));
+  link.href = 'https://github.com/sidera-foundry/stazione#readme';
+  link.target = '_blank'; link.rel = 'noopener';
+  bar.append(el('span', null, __('Demo with made-up people, agents and projects: look around, changes are switched off.')), link);
+  document.body.prepend(bar);
 }
 
 /**

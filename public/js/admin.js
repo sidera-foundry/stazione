@@ -39,7 +39,7 @@ const EVENTS = {
   recover_started: 'Account recovery started', recover_completed: 'Account recovered', recover_failed: 'Account recovery failed',
   invite_created: 'Invite created', invite_revoked: 'Invite revoked', role_assigned: 'Role changed for a person', room_role_assigned: 'Room role changed for a person',
   role_created: 'Role created', role_changed: 'Role edited', role_deleted: 'Role deleted', account_deleted: 'Account deleted', account_delete_failed: 'Account deletion failed',
-  token_created: 'Agent token created', token_revoked: 'Agent token revoked', token_restrictions_changed: 'Agent token limits changed', agent_stopped: 'Agent stopped',
+  token_created: 'Agent token created', token_connected: 'Computer connected with a connection code', token_revoked: 'Agent token revoked', token_restrictions_changed: 'Agent token limits changed', agent_stopped: 'Agent stopped',
   device_registered: 'Browser registered', device_approval_required: 'Browser waiting for approval',
   room_visibility_changed: 'Room visibility changed', reception_changed: 'Reception mode changed', approval_rule_changed: 'Approval rule changed',
   security_policy_changed: 'Security safeguards changed', ip_rules_changed: 'Allowed networks changed', user_limit_changed: 'User limit changed',
@@ -88,6 +88,10 @@ async function overview() {
   const online = data.claudes.filter((c) => c.status !== 'offline' && Date.now() - c.last_seen < 10 * 60e3).length;
   stats.append(stat(rooms.length, __('Rooms')), stat(`${online}/${data.claudes.length}`, __('Agents online')), stat(data.tasks.length, __('Open missions')), stat(data.locks.length, __('Locked files')));
   target.append(stats);
+  const reg = data.region; // the database far from the functions: the station is slow, and how to fix it
+  if (reg) target.append(el('p', 'warn-box', reg.suggested
+    ? __`The station's functions run in ${reg.functions} and the database in ${reg.database}: every request travels between them several times, so the station is slow. On Vercel, Settings → Functions → Function Region: choose ${reg.suggested}, then redeploy.`
+    : __`The station's functions run in ${reg.functions} and the database in ${reg.database}: every request travels between them several times, so the station is slow. On Vercel, Settings → Functions → Function Region: choose the region closest to the database, then redeploy.`));
   if (panels.has('rooms')) roomsPanel();
   const stop = (c) => button(__('Stop agent'), async () => { if (confirm(__('Stop this agent and suspend its token? Sessions sharing the token will also stop.'))) { await api('POST', `/api/reception/agents/${c.id}/stop`, {}); await overview(); } }, true);
   const manage = can(me, 'claudes.manage');

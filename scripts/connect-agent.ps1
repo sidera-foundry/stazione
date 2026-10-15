@@ -70,7 +70,7 @@ if ([Environment]::GetEnvironmentVariable('STAZIONE_TOKEN', 'User')) {
   Say "The old plain-text token in your Windows user variables was removed." 'DarkGray'
 }
 Remove-Item Env:STAZIONE_TOKEN -ErrorAction SilentlyContinue
-Say "`nToken saved encrypted for your Windows user ($dir	oken.dpapi)." 'Green'
+Say "`nToken saved encrypted for your Windows user ($dir\token.dpapi)." 'Green'
 
 # 5. The protocol file with this computer's identity
 $text = [IO.File]::ReadAllText($template)
