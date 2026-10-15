@@ -30,6 +30,10 @@ test('server: pages, client files, path traversal, body limit', async () => {
     assert.equal(r.status, 200);
     assert.match(await r.text(), /Stazione CLI/);
     assert.equal((await fetch(`${base}/CLAUDE.template.md`)).status, 200);
+    r = await fetch(`${base}/m/lounge/scene.js`); // module files live outside /api/ (clean URLs on Vercel redirect /api/...js)
+    assert.equal(r.status, 200);
+    assert.match(r.headers.get('content-type'), /javascript/);
+    assert.equal((await fetch(`${base}/m/ideas`)).status, 200);
     assert.equal((await fetch(`${base}/..%2Fpackage.json`)).status, 404, 'nothing outside public/');
     assert.equal((await fetch(`${base}/nope`)).status, 404);
     assert.equal((await fetch(`${base}/login`, { method: 'POST' })).status, 405);
@@ -59,4 +63,14 @@ test('server behind an HTTPS proxy: the origin is https, so browser writes are n
   };
   assert.equal(await send(true), 200, 'trusted proxy: https origin accepted');
   assert.equal(await send(false), 403, 'no trusted proxy: the forwarded protocol is ignored');
+});
+
+test('deploy: Vercel uploads every module file (only the root server.js and test/ are left out)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const lines = readFileSync(new URL('../.vercelignore', import.meta.url), 'utf8').split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  assert.ok(!lines.includes('server.js'), 'a bare "server.js" would also drop the server.js of the modules');
+  assert.ok(lines.includes('/server.js'));
+  const vercel = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8'));
+  const files = vercel.rewrites.findIndex((r) => r.source === '/m/:id/:file'), page = vercel.rewrites.findIndex((r) => r.source === '/m/:id');
+  assert.ok(files !== -1 && files < page, 'module files are rewritten to the API before the module pages');
 });

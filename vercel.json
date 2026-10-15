@@ -74,6 +74,10 @@
       "destination": "/api/index?__route=modules/ideas/page"
     },
     {
+      "source": "/m/:id/:file",
+      "destination": "/api/index?__route=modules/:id/:file"
+    },
+    {
       "source": "/m/:id",
       "destination": "/api/index?__route=modules/:id/page"
     },

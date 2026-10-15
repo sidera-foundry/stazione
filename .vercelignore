@@ -3,5 +3,5 @@
 node_modules
 .env*
 .dev-db
-test
-server.js
+/test
+/server.js

@@ -122,7 +122,7 @@ export default function setup(station) {
   stazione).
 
 Gli script importano gli strumenti del nucleo con il percorso assoluto (`import { el } from '/js/common.js'`). I file
-vengono serviti a `/api/modules/<id>/<file>`, solo finché il modulo è acceso.
+vengono serviti a `/m/<id>/<file>`, solo finché il modulo è acceso.
 
 ## 6. Regole di sicurezza
 

@@ -117,7 +117,7 @@ export default function setup(station) {
 - **`station.on(name, fn)`**: `room` (the room on screen; `''` is the whole station) and `state` (fresh station data).
 
 Scripts import core helpers by absolute path (`import { el } from '/js/common.js'`). Files are served at
-`/api/modules/<id>/<file>`, only while the module is on.
+`/m/<id>/<file>`, only while the module is on.
 
 ## 6. Security rules
 

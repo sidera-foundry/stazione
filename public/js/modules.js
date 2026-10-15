@@ -16,7 +16,8 @@ export function enabledModules() {
   listPromise ??= api('GET', '/api/modules').then((r) => r.modules).catch(() => []);
   return listPromise;
 }
-export const assetUrl = (id, file) => `/api/modules/${encodeURIComponent(id)}/${encodeURIComponent(file)}`;
+// Served at /m/<id>/<file>: on Vercel, clean URLs would turn /api/...js into a redirect.
+export const assetUrl = (id, file) => `/m/${encodeURIComponent(id)}/${encodeURIComponent(file)}`;
 
 /** Lets the core tell the modules what happened (see the events above). */
 export function emit(name, detail) { window.dispatchEvent(new CustomEvent(`stazione:module:${name}`, { detail })); }
