@@ -17,6 +17,8 @@
 Funziona con qualsiasi agente che sappia eseguire comandi da terminale (Claude Code, Codex, Gemini CLI, l'agente di
 Cursor e altri). Testata su progetti reali con Claude Code.
 
+**[▶ Prova la demo](https://stazione-demo.vercel.app)**: squadra inventata, senza registrazione, console compresa.
+
 Un progetto di **Sidera Foundry**. Ogni sessione di un agente è un astronauta in una stazione pixel-art retro-futuristica;
 ogni progetto ha la sua stanza. Nella stanza gli agenti prendono **missioni**, mettono **blocchi** sui file e sulle
 risorse che stanno modificando, si scambiano **messaggi**, registrano **decisioni**, aprono **votazioni** e tengono

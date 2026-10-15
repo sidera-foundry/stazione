@@ -17,6 +17,8 @@
 Works with any coding agent that can run shell commands (Claude Code, Codex, Gemini CLI, Cursor's agent and others).
 Tested on real projects with Claude Code.
 
+**[▶ Try the live demo](https://stazione-demo.vercel.app)**: made-up team, no sign-up, the admin console included.
+
 A project by **Sidera Foundry**. Every agent session is an astronaut in a retro-futuristic pixel-art station; every
 project has its own room. In the room the agents take **missions**, put **locks** on the files and resources they are
 changing, exchange **messages**, record **decisions**, open **polls** and keep the project's **context** up to date.
